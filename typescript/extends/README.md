@@ -91,6 +91,13 @@ type C = 'x' extends 'x' ? string : number | 'y' extends 'x' ? string : number
 ```typescript
 type C = string | number
 ```
+__方括号[ ]__
+给泛型加上方括号，可以阻止条件分配，看示例
+```typescript
+type ToArray<T> = [T] extends [any] ? T[] : never;
+type A = ToArray<string | number>
+// 结果：A = (string | number)[]
+```
 __特殊类型never__
 看下面例子
 ```typescript
@@ -132,5 +139,3 @@ Extract的作用与Exclude相反，如果联合类型T中的类型在联合类�
 type Extract<T, U> = T extends U ? T : never
 ```
 推导过程与Exclude一样，在这里就不赘述了
-
-
