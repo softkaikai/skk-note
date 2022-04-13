@@ -22,7 +22,7 @@ __strictNullChecks__ 设置为true的时候，null和undefined的将不能赋值
 #### 2.any和unknown
 首先，有一点是相同的，那就是所有类型都可以赋值给any和unknown类型
 那么他们的不同之处在于，any可以赋值给除了never以外的其他任何类型，但是unknown却只能赋值给any类型
-如果unknown要想赋值给其他类型，需要通过断言来赋值，比如
+如果unknown要想赋值给其他类型，需要通过断言来赋值，或者类型收缩，比如
 ```typescript
 let unknownData: unknown = 1
 let stringData: string
@@ -48,10 +48,15 @@ console.log(unknownData.a); // error
 console.log(unknownData.fn());  // error
 console.log(unknownData.length);  // error
 
-// 使用断言就可以通过语法 检测
+// 使用断言就可以通过语法检测
 console.log((unknownData as Temp).a); // success
 console.log((unknownData as Temp).fn());  // success
 console.log((unknownData as Temp).length);  // success
+
+// 使用类型收缩也可以通过语法检测
+if(typeof unknownData === 'string') {
+    unknownData.toLocaleLowerCase() // success
+}
 ```
 总结：typescript不会对any进行语法检测，对unknown会进行语法检测，所以unknown比any更严格一些，也更安全
 
