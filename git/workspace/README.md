@@ -28,23 +28,24 @@ __远程仓库副本__ 在我们通过git push将本地代码提交到远程仓�
 
 #### 2.git pull 和 git fetch
 在前面稍微提了一嘴，git pull = git fetch + git merge
-其中git fetch的完全命令形式是 __git fetch &nbsp;&nbsp;<远程仓库名> &nbsp;&nbsp;<需要拉取代码的分支>__
-如果省略后面两个参数，直接使用 __git fetch__ 或者 __git fetch origin__ 表示将远程仓库所有代码取回，放在本地的 __远程仓库副本__ 中，
-如果使用 __git fetch origin master__ 表示将远程仓库的master分支的内容取回，放在本地的 __远程仓库副本__ 中，
+其中git fetch的完全命令形式是 __git fetch &nbsp;&nbsp;<远程仓库名> &nbsp;&nbsp;<远程分支名>__
+如果省略后面两个参数，直接使用 __git fetch__ 或者 __git fetch origin__ 表示将远程仓库所有分支代码取回，放在本地的 __远程仓库副本__ 中，
+如果使用 __git fetch origin master__ 表示只将远程仓库的master分支的内容取回，放在本地的 __远程仓库副本__ 中，
 其中的 __origin__ 表示远程仓库的名字，在git clone克隆项目到本地的时候，它会自动给远程仓库取名叫 __origin__ 。
 可以通过 __git clone -o \<name\>__ 给远程仓库重新命名，或者通过 __git remote rename \<old\> \<new\>__ 也可以修改远程仓库的名字。  
 
-__merge__ 的常见用法 __git merge <需要合并的分支>__ 
-比如，你现在的本地当前分支是 __dev__ 那么 __git merge dev__ 表示将 __远程仓库副本__ 中的 __dev__ 分支内容合并到当前分支 __dev__ 中
+__git merge__ 的常见用法 __git merge <需要合并的分支>__ 
+比如，你现在的本地当前分支是 __dev__ 那么 __git merge fix__ 表示将 __远程仓库副本__ 中的 __fix__ 分支内容合并到当前分支 __dev__ 中
 git merge更加详细的用法这里就不赘述了，想了解更多的请 [点击这里](https://git-scm.com/docs/git-merge)  
 
 __git pull__ 最长见的用法 __git pull <远程仓库名> <远程分支名>__
-比如，__git pull origin dev__ 表示将远程的 __dev__ 分支拉到本地，然后和本地的 __dev__ 分支合并
+比如，__git pull origin dev__ 表示将远程的 __dev__ 分支拉到本地，然后和当前分支合并
+如果你本地的当前分支是dev，就是和dev分支合并，如果当前分支是fix分支，就是和fix分支合并
 还有另一种用法 __git pull <远程仓库名> <远程分支名>:<本地分支名>__
-比如，__git pull origin dev:fix__ 表示将远程的 __fix__ 分支拉到本地，然后和本地的 __dev__ 分支合并
+比如，__git pull origin fix:dev__ 表示将远程的 __fix__ 分支拉到本地，然后和本地的 __dev__ 分支合并
 
 #### 3.git push
 __git push__ 最长见的用法 __git push <远程仓库名> <远程分支名>__
-比如，__git push origin dev__ 表示将本地的 __dev__ 分支推送到远程的 __dev__ 分支上
+比如，__git push origin dev__ 表示将当前分支推送到远程的 __dev__ 分支上
 还有另一种用法 __git push <远程仓库名> <本地分支名>:<远程分支名>__
 比如，__git push origin dev:fix__ 表示将本地的 __dev__ 分支推送到远程的 __fix__ 分支上
