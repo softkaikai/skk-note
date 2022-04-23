@@ -4,7 +4,8 @@ Babel 是一个JavaScript编译器，主要用于将采用 ECMAScript 2015+ 语�
 
 #### 1.Babel原理
 
-![babelPrinciple](./imgs/babel-principle.webp 'babelPrinciple')
+![babelPrinciple](./imgs/babel-principle.webp 'babelPrinciple')  
+
 Babel整体编译过程是如上图所示：
 首先给一段代码给Babel，Babel会对这段代码进行parse解析，并生成AST（抽象语法树）。
 之后对生成的AST进行编辑操作，这里就对应上图中的transform阶段。
@@ -116,8 +117,10 @@ babel.transform(code, (err, result) => {
 
 #### 5.@babel/polyfill
 上面我们提到了 __map__ 函数没有得到转换，那我们是不是给它配置相应的插件就可以了呢？
-答案是：不行。因为插件只对js的语法进行转换，而诸如 __map filter forEach Promise__ 之类的是输入API的范畴，所以插件表示我也爱莫能助。
-![wunai](./imgs/wunai.jpeg)
+答案是：不行。因为插件只对js的语法进行转换，而诸如 __map filter forEach Promise__ 之类的是输入API的范畴，所以插件表示我也爱莫能助。  
+
+![wunai](./imgs/wunai.jpeg)  
+
 那么要使用新API的话，就要用到 __@babel/polyfill__ 了。
 因为在Babel 7.4.0版本之后，__@babel/polyfill__ 这个库就被废弃了，官方给出建议让我们用下面这两个库
 * [core-js](https://github.com/zloirock/core-js) 主要实现了对 __Promise Set Map__ 等这些api的支持
@@ -374,12 +377,14 @@ var Circle = /*#__PURE__*/(0, _createClass2.default)(function Circle() {
 从中可以看到 ___createClass2 和 _classCallCheck2__ 这两个函数都是通过导入 __@babel/runtime__ 里面的模块得到的。这样就避免了在不同文件中都会生成同样的函数了，从而大大减小了最后包生成的体积。
 在刚刚的babel.config.json文件中，我们给@babel/plugin-transform-runtime插件配置了一个叫corejs的参数。
 这个参数的作用是，根据corejs配置不同的值，@babel/plugin-transform-runtime内部会调用不同库的@babel/runtime。
-具体配置如下：
+具体配置如下：  
+
 |corejs|@babel/runtime库|
 |:--|:--|
 |false|@babel/runtime|
 |2|@babel/runtime-corejs2|
-|3|@babel/runtime-corejs3|
+|3|@babel/runtime-corejs3|  
+
 那么 __@babel/runtime-corejs2__ 有什么用呢？
 上面我们提到过，直接引入polyfill会导致全局变量污染，那么 __@babel/runtime-corejs2__ 就是解决这个问题。
 修改a.js文件
