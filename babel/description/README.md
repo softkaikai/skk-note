@@ -100,7 +100,7 @@ babel.transform(code, (err, result) => {
 #### 4.预设@babel/preset-*
 所谓的预设就是一堆插件的集合。比如说我们需要对箭头函数进行转换，需要添加插件@babel/plugin-transform-arrow-functions，
 如果我们还需要对class进行转换，还要添加插件@babel/plugin-transform-classes。再进一步，对for of进行转换，我们还需要添加插件@babel/plugin-transform-for-of。
-像这样每次都要一个个的安装插件就太麻烦，所以我们聪明的开发人家就索性把常用的插件打个包，下次再用的时候，我就只安装这个包就可以了。
+像这样每次都要一个个的安装插件就太麻烦，所以我们聪明的开发人员就索性把常用的插件打个包，下次再用的时候，我就只安装这个包就可以了。
 比如最常用的一个预设@babel/preset-env就包含了上面提到的所有插件，我们只需要安装这一个就可以使用大部分javascript的新功能了。现在我们对 babel.config.json 文件进行修改，把@babel/preset-env加进入，并把@babel/plugin-transform-arrow-functions这个插件删除掉
 ```json
 {

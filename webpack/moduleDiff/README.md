@@ -59,7 +59,8 @@ define(['./someModule.js'], function(someModuleData) {
 正所谓一家欢喜一家忧，面试官又有问题可问了：[Commonjs和ES Module具体有什么区别呢？](./README.md)
 哎！！！
 
-![weiqu](./imgs/weiqu.gif 'weiqu')
+![weiqu](./imgs/weiqu.gif 'weiqu')  
+
 ES Modlue常用导出方式
 ```js
 export const a = 123
