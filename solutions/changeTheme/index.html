@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    /* html */
+    :root {
+      --theme-bg-color: red;
+      --theme-color: red;
+    }
+
+    .main-bg-color {
+      height: 400px;
+      background: var(--theme-bg-color);
+    }
+    .main-color {
+      font-size: 20px;
+      color: var(--theme-color);
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="handle">
+      
+    </div>
+    
+    <div class="main">
+      <div class="main-color">主题文字颜色</div>
+      <div class="main-bg-color"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    const $root = document.querySelector(':root')
+    const themes = ['red', 'yellow', 'orange']
+    const $handle = document.querySelector('.handle')
+    const buttonHtml = themes.reduce((pre, cur) => {
+      return pre + `
+      <button data-name="${cur}">
+        to ${cur}
+      </button>
+      `
+    }, '')
+    $handle.innerHTML = buttonHtml
+
+    themes.forEach(theme => {
+      document.querySelector(`button[data-name="${theme}"]`).addEventListener('click', function(e) {
+        import(`./themes/${theme}.js`).then(res => {
+          const themeData = res.default
+          for(let key in themeData) {
+            $root.style.setProperty(key, themeData[key])
+          }
+        })
+      })
+    })
+  
+  </script>
+</body>
+</html>

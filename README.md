@@ -16,4 +16,5 @@
 &emsp;&emsp;[5.1 Babel详细介绍](/babel/description/README.md)  
 &emsp;[6. ES6](/ES6/README.md)  
 &emsp;&emsp;[6.1 CommonJS 和 ES Module之间的区别](/ES6/commonJS/README.md)  
-
+&emsp;[1000. 常见应用场景解决方案](/solutions)  
+&emsp;&emsp;[1000.1 CSS主题切换](/solutions/changeTheme)  
