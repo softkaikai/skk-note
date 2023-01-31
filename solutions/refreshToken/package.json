@@ -1,0 +1,19 @@
+{
+  "name": "refreshtoken",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/cors": "^4.0.0",
+    "axios": "^1.2.6",
+    "jsonwebtoken": "^9.0.0",
+    "koa": "^2.14.1",
+    "koa-jwt": "^4.0.4",
+    "koa-router": "^12.0.0"
+  }
+}
