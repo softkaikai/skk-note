@@ -21,3 +21,4 @@
 
 &emsp;[1000. 常见应用场景解决方案](/solutions)  
 &emsp;&emsp;[1000.1 CSS主题切换](/solutions/changeTheme)  
+&emsp;&emsp;[1000.1 无感刷新token](/solutions/refreshToken)  

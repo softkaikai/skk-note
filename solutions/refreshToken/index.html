@@ -7,12 +7,105 @@
   <title>Document</title>
 </head>
 <body>
+
+  <div id="app">
+    <div>
+      设置token有效时间：<input type="number" v-model="expiresIn"> 秒
+    </div>
+    <div>
+      <button @click="getToken">获取最新token</button>
+    </div>
+    <div>
+      <button @click="useApi">调用接口</button>
+    </div>
+  </div>
   
+  <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script>
-    fetch('http://localhost:3001/getBooks')
-    .then(res => res.json())
-    .then(data => console.log(data))
-    .catch(err => console.log(err))
+    var token = ''
+    var isRefreshingToken = false
+    var requests = []
+
+    axios.interceptors.request.use(function (config) {
+      if (token) {
+        config.headers.Authorization = 'Bearer ' + token
+      }
+      
+        return config;
+      }, function (error) {
+        return Promise.reject(error);
+      });
+
+    axios.interceptors.response.use(function (response) {
+      return response;
+    }, function (error) {
+      const { response } = error
+      // token过期
+      if (response.status === 401) {
+        if (!isRefreshingToken) {
+          isRefreshingToken = true
+          return refreshToken(10).then(() => {
+            // 重新调用之前保存的请求
+            requests.forEach(fn => {
+              fn()
+            })
+            return axios(response.config)
+          })
+        } else {
+          // 如果正在获取新的token，就把请求先保存起来
+          // 等token获取到之后，再重新发送请求
+          return new Promise(resolve => {
+            requests.push(() => {
+              return resolve(axios(response.config))
+            })
+          })
+        }
+      }
+    });
+
+    function get(url, params = {}) {
+      return axios({
+        methods: 'get',
+        url: 'http://localhost:3001' + url,
+        params
+      })
+    }
+
+    function refreshToken(expiresIn) {
+      return get('/public/refreshToken', { name : 'kaikai', expiresIn })
+          .then(res => {
+            token = res.data
+          })
+    }
+  </script>
+  <script>
+
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          name: 'kaikai',
+          expiresIn: 10
+        }
+      },
+      methods: {
+        getToken() {
+          refreshToken(this.expiresIn)
+        },
+        useApi() {
+          get('/getBooks')
+          .then(res => {
+            console.log(res.data);
+          })
+          get('/getFoods')
+          .then(res => {
+            console.log(res.data);
+          })
+        },
+      }
+    }).mount('#app')
   </script>
 </body>
 </html>
