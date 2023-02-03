@@ -12,46 +12,180 @@
     <button id="UPLOAD_BUTTON">upload</button>
   </div>
 
+  <script src="./spark-md5.js"></script>
   <script>
     document.querySelector('#UPLOAD_BUTTON').addEventListener('click', () => {
       uploadFile()
     })
     
-    fetch('http://localhost:3001/merge', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: JSON.stringify({name: 'kaikai', age: '123'})
-    }).then(res => {
-      console.log(res);
-      return res.json()
-    })
-    .then(data => console.log(data))
+    // fetch('http://localhost:3001/merge', {
+    //   method: 'post',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //     // 'Content-Type': 'application/x-www-form-urlencoded',
+    //   },
+    //   body: JSON.stringify({name: 'kaikai', age: '123'})
+    // }).then(res => {
+    //   console.log(res);
+    //   return res.json()
+    // })
+    // .then(data => console.log(data))
 
-    function uploadFile() {
+    async function uploadFile() {
       const formData = new FormData()
       const file = getFile('#UPLOAD_FILE')
       if (!file) {
         alert('请先上传文件')
         return
       }
-      console.log('file', file.name);
-      formData.append('file', file)
-      formData.append('fileName', file.name)
+      const md5 = await getMD5(file)
+      // 文件名
+      const fileName = file.name.split('.')[0]
+      // 文件扩展名
+      const extName = file.name.split('.')[1]
 
-      fetch('http://localhost:3001/uploadFile', {
-        method: 'post',
-        body: formData
-      }).then(res => {
+      const query = {md5, fileName, extName}
+
+      const existFileInfo = await getExistFileInfo(query)
+      
+      // 已经上传了的chunk
+      const uploadedChunks = existFileInfo.chunks || []
+
+      // 给每一个chunk创建一个上传文件的请求
+      const chunksRequest = createChunksRequest(file, query, uploadedChunks)
+      console.log('chunksRequest', chunksRequest);
+
+      if (chunksRequest.length === 0) {
+        console.log('文件已经上传完毕');
+        return
+      }
+      // 对发送请求的最大数量进行控制
+      const result = await createLimitRequest(2, chunksRequest)
+
+      console.log('result', result);
+    }
+
+    function getExistFileInfo(query) {
+      return fetch(`http://localhost:3001/fileInfo?md5=${query.md5}&fileName=${query.fileName}&extName=${query.extName}`).then(res => {
         return res.json()
-      }).then(data => console.log(data))
+      })
     }
 
 
     function getFile(selector) {
       return document.querySelector(selector).files[0]
+    }
+
+    function getMD5(file) {
+      return new Promise((resolve, reject) => {
+        var blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
+        chunkSize = 2097152,                             // Read in chunks of 2MB
+        chunks = Math.ceil(file.size / chunkSize),
+        currentChunk = 0,
+        spark = new SparkMD5.ArrayBuffer(),
+        fileReader = new FileReader();
+
+        fileReader.onload = function (e) {
+            spark.append(e.target.result);                   // Append array buffer
+            currentChunk++;
+
+            if (currentChunk < chunks) {
+                loadNext();
+            } else {
+              resolve(spark.end())
+            }
+        };
+
+        fileReader.onerror = function () {
+          reject('oops, something went wrong.')
+        };
+
+        function loadNext() {
+            var start = currentChunk * chunkSize,
+                end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+
+            fileReader.readAsArrayBuffer(blobSlice.call(file, start, end));
+        }
+
+        loadNext();
+      })
+    }
+    
+    function createChunksRequest(file, {md5, fileName, extName}, uploadedChunks) {
+      // 设置每个切片的大小
+      const chunkSize = 40 * 1024
+      const fileSize = file.size
+      const chunksRequest = []
+      let start = 0
+      let index = 0
+      let end = chunkSize
+      while(end < fileSize) {
+        // 将已经上传的切片给剔除掉
+        if (!uploadedChunks.includes(index)) {
+          const formData = new FormData()
+          formData.append('md5', md5)
+          formData.append('fileName', fileName)
+          formData.append('extName', extName)
+          formData.append('index', index)
+          formData.append('file', file.slice(start, end))
+
+          chunksRequest.push(() => {
+            return new Promise((resolve) => {
+              fetch('http://localhost:3001/uploadFile', {
+                method: 'post',
+                body: formData
+              }).then(res => {
+                resolve('success')
+              }).catch(err => resolve('fail'))
+            })
+          })
+        }
+        index++
+        start = end
+        end += chunkSize
+      }
+
+      return chunksRequest
+    }
+
+    
+    function createLimitRequest(limitNum, requests) {
+      // 正在上传的文件请求数量
+      let requestingNum = 0
+      // 请求完成了的数量
+      let requestedNum = 0
+      // 请求结果
+      let resArray = []
+      const requestLength = requests.length
+
+      return new Promise(resolve => {
+        for(let i = 0; i < limitNum; i++) {
+          run()
+        }
+
+        function run() {
+          if (requests.length) {
+            requestingNum++
+            const request = requests.shift()
+            request()
+            .then(res => {
+              resArray.push(res)
+            })
+            .catch(err => console.log(err))
+            .finally(() => {
+              requestingNum--
+              requestedNum++
+              // 所有接口请求完成
+              if (requestedNum === requestLength) {
+                resolve(resArray)
+                return
+              }
+              // 当一个接口请求完成后，自动调用下一个请求
+              run()
+            })
+          }
+        }
+      })
     }
   </script>
 </body>

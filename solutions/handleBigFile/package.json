@@ -1,9 +1,12 @@
 {
 	"dependencies": {
 		"@koa/cors": "^4.0.0",
+		"fs-extra": "^11.1.0",
 		"koa": "^2.14.1",
 		"koa-body": "^6.0.1",
 		"koa-bodyparser": "^4.3.0",
-		"koa-router": "^12.0.0"
+		"koa-router": "^12.0.0",
+		"koa-static2": "^0.1.8",
+		"move-file": "^3.0.0"
 	}
 }
