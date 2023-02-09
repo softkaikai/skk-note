@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .item {
+      height: 30px;
+      display: flex;
+      align-items: center;
+    }
+
+    .check {
+      width: 10px;
+      height: 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    .check-active {
+      background: #07d;
+    }
+
+    .box {
+      width: 200px;
+      height: 600px;
+      border: 1px solid #e0e0e0;
+      overflow: auto;
+      position: relative;
+    }
+
+    .box-phantom {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: -1;
+    }
+    .box-content {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="box" @scroll="scrollFn">
+      <div class="box-phantom" :style="{height: itemHeight * tree.length + 'px'}"></div>
+      <div class="box-content" ref="content">
+        <div 
+          v-for="(item, index) of treeData" :key="item.id"
+          class="item"
+          :style="{'padding-left': item.level * 20 + 'px'}"
+        >
+          <div class="check"></div>
+          {{ item.name }}
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    const { createApp } = Vue
+
+    createApp({
+      data() {
+        return {
+          tree: [],
+          itemHeight: 30,
+          boxHeight: 600,
+          itemLength: 10,
+          start: 0,
+          end: 10,
+        }
+      },
+      computed: {
+        treeData() {
+          return this.tree.slice(this.start, this.start + this.itemLength)
+        }
+      },
+      mounted() {
+        this.itemLength = Math.floor(this.boxHeight / this.itemHeight)
+        this.getTreeByWorker()
+      },
+      methods: {
+        getTreeByWorker() {
+          return new Promise(resolve => {
+            const worker = new Worker('./worker.js')
+            worker.addEventListener('message', ({data}) => {
+              this.tree = data
+
+              worker.terminate()
+            })
+          })
+        },
+        scrollFn(e) {
+          const { scrollTop } = e.target
+          this.start = Math.floor(scrollTop / this.itemHeight)
+
+          this.$refs.content.style.webkitTransform = `translate3d(0, ${this.start * this.itemHeight}px, 0) `
+        },
+        
+      }
+    }).mount('#app')
+
+    
+  </script>
+</body>
+</html>

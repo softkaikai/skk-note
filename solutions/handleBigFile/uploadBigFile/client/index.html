@@ -17,19 +17,6 @@
     document.querySelector('#UPLOAD_BUTTON').addEventListener('click', () => {
       uploadFile()
     })
-    
-    // fetch('http://localhost:3001/merge', {
-    //   method: 'post',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //     // 'Content-Type': 'application/x-www-form-urlencoded',
-    //   },
-    //   body: JSON.stringify({name: 'kaikai', age: '123'})
-    // }).then(res => {
-    //   console.log(res);
-    //   return res.json()
-    // })
-    // .then(data => console.log(data))
 
     async function uploadFile() {
       const formData = new FormData()
@@ -47,6 +34,10 @@
       const query = {md5, fileName, extName}
 
       const existFileInfo = await getExistFileInfo(query)
+      if (existFileInfo.completed) {
+        console.log('文件已经上传完毕，文件合成完毕');
+        return
+      }
       
       // 已经上传了的chunk
       const uploadedChunks = existFileInfo.chunks || []
@@ -56,13 +47,28 @@
       console.log('chunksRequest', chunksRequest);
 
       if (chunksRequest.length === 0) {
+        mergeFile(query)
         console.log('文件已经上传完毕');
         return
       }
       // 对发送请求的最大数量进行控制
       const result = await createLimitRequest(2, chunksRequest)
 
+      mergeFile(query)
+
       console.log('result', result);
+    }
+
+    function mergeFile(query) {
+      fetch('http://localhost:3001/merge', {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(query)
+        }).then(res => {
+          return res.json()
+        }).then(data => console.log(data))
     }
 
     function getExistFileInfo(query) {
@@ -110,6 +116,7 @@
         loadNext();
       })
     }
+
     
     function createChunksRequest(file, {md5, fileName, extName}, uploadedChunks) {
       // 设置每个切片的大小
@@ -119,7 +126,7 @@
       let start = 0
       let index = 0
       let end = chunkSize
-      while(end < fileSize) {
+      while(start < fileSize) {
         // 将已经上传的切片给剔除掉
         if (!uploadedChunks.includes(index)) {
           const formData = new FormData()
